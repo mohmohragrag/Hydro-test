@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حاسبة ضغط الأنابيب — جدار رقيق / سميك تلقائياً</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>حاسبة ضغط ماسورة ماء (حديد)</h1>
+    <p class="subtitle">أدخل القطر والسُمك. الصفحة تختار المعادلة تلقائيًا (جدار رقيق ⇄ جدار سميك).</p>
+
+    <form id="pipeForm">
+      <div class="field">
+        <label for="diameter">القطر D (مم)</label>
+        <input type="number" id="diameter" min="0" step="0.01" placeholder="مثال: 200" required>
+      </div>
+
+      <div class="field">
+        <label for="thickness">السُمك t (مم)</label>
+        <input type="number" id="thickness" min="0" step="0.01" placeholder="مثال: 20" required>
+      </div>
+
+      <div class="field">
+        <label for="diameterType">نوع القطر</label>
+        <select id="diameterType">
+          <option value="OD" selected>القطر المدخل هو القطر الخارجي (OD)</option>
+          <option value="ID">القطر المدخل هو القطر الداخلي (ID)</option>
+        </select>
+      </div>
+
+      <details class="advanced">
+        <summary>خيارات متقدمة</summary>
+
+        <div class="field">
+          <label for="steelType">نوع الصلب</label>
+          <select id="steelType">
+            <option value="custom" selected>مخصص / لم يتم الاختيار</option>
+            <option value="ST37">ST37 (≈ S235) — σ_yield ≈ 235 MPa</option>
+            <option value="ST44">ST44 (≈ S275) — σ_yield ≈ 275 MPa</option>
+            <option value="ST52">ST52 (≈ S355) — σ_yield ≈ 355 MPa</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="safetyFactor">معامل الأمان</label>
+          <select id="safetyFactor">
+            <option value="1.5">1.5</option>
+            <option value="2" selected>2.0</option>
+            <option value="2.5">2.5</option>
+            <option value="3">3.0</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="sigmaAllow">الإجهاد المسموح σ_allow (MPa)</label>
+          <input type="number" id="sigmaAllow" min="0.1" step="0.1" value="120">
+        </div>
+
+        <div class="field inline">
+          <label><input type="checkbox" id="hydroCheck"> تفعيل فحص هيدروستاتيكي</label>
+        </div>
+        <div id="hydroOptions" class="field hidden">
+          <label for="hydroFactor">مضاعف الاختبار</label>
+          <input type="number" id="hydroFactor" min="1" step="0.05" value="1.5">
+        </div>
+
+      </details>
+
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button type="submit" class="btn">احسب</button>
+        <button type="button" id="resetBtn" class="btn btn-secondary">مسح</button>
+        <button type="button" id="fillExample" class="btn btn-ghost">مثال جاهز (200×20, ST52)</button>
+      </div>
+    </form>
+
+    <div id="result" class="card hidden">
+      <h2>النتائج</h2>
+      <div class="result-grid">
+        <div>
+          <div class="label">المعادلة المستخدمة:</div>
+          <div id="methodUsed" class="value">—</div>
+        </div>
+        <div>
+          <div class="label">الضغط المسموح (بار):</div>
+          <div id="pBar" class="value">—</div>
+        </div>
+        <div>
+          <div class="label">الضغط المسموح (MPa):</div>
+          <div id="pMPa" class="value">—</div>
+        </div>
+        <div>
+          <div class="label">σ_allow المستخدم (MPa):</div>
+          <div id="sigmaUsed" class="value">—</div>
+        </div>
+      </div>
+
+      <div id="extraInfo" class="note"></div>
+      <div id="hydroResult" class="note hidden"></div>
+
+      <details class="formula">
+        <summary>تفاصيل المعادلات</summary>
+        <p>
+          <strong>جدار رقيق:</strong> σθ = p·D / (2·t) ⇒ p = 2·t·σ_allow / D<br>
+          <strong>جدار سميك (Lame, p_o = 0):</strong>  
+          σθ(inner) = p · (r_o² + r_i²) / (r_o² - r_i²) ⇒  
+          p = σ_allow · (r_o² - r_i²) / (r_o² + r_i²)
+        </p>
+      </details>
+    </div>
+
+    <footer>
+      <small>ملاحظة: القيم تقريبية؛ في حالات حساسة استخدم مراجع معيارية (ASME/EN) وبيانات المادة.</small>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
